@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import userEvent from "@testing-library/user-event";
 import ContactForm from "./ContactForm";
+import DisplayComponent from "./DisplayComponent";
 
 test("renders without errors", () => {
   render(<ContactForm />);
@@ -81,6 +82,52 @@ test('renders "lastName is a required field" if an last name is not entered and 
   expect(lastNameError).toBeInTheDocument();
 });
 
-test("renders all firstName, lastName and email text when submitted. Does NOT render message if message is not submitted.", async () => {});
+test("renders all firstName, lastName and email text when submitted. Does NOT render message if message is not submitted.", async () => {
+  render(<ContactForm />, <DisplayComponent />);
 
-test("renders all fields text when all fields are submitted.", async () => {});
+  const firstNameInput = screen.getByLabelText(/first name*/i);
+  const lastNameInput = screen.getByLabelText(/last name*/i);
+  const emailInput = screen.getByLabelText(/email*/i);
+  userEvent.type(firstNameInput, "blake");
+  userEvent.type(lastNameInput, "alderink");
+  userEvent.type(emailInput, "blake.alderink@gmail.com");
+
+  const submit = screen.getByText(/submit/i);
+  userEvent.click(submit);
+
+  const firstNameRender = await screen.findByTestId("firstnameDisplay");
+  const lastNameRender = await screen.findByTestId("lastnameDisplay");
+  const emailRender = await screen.findByTestId("emailDisplay");
+  const messageRender = await screen.queryByTestId("messageDisplay");
+
+  expect(firstNameRender).toBeInTheDocument();
+  expect(lastNameRender).toBeInTheDocument();
+  expect(emailRender).toBeInTheDocument();
+  expect(messageRender).toBeNull();
+});
+
+test("renders all fields text when all fields are submitted.", async () => {
+  render(<ContactForm />, <DisplayComponent />);
+
+  const firstNameInput = screen.getByLabelText(/first name*/i);
+  const lastNameInput = screen.getByLabelText(/last name*/i);
+  const emailInput = screen.getByLabelText(/email*/i);
+  const messageInput = screen.getByLabelText(/message*/i);
+  userEvent.type(firstNameInput, "blake");
+  userEvent.type(lastNameInput, "alderink");
+  userEvent.type(emailInput, "blake.alderink@gmail.com");
+  userEvent.type(messageInput, "this is the message that I put here");
+
+  const submit = screen.getByText(/submit/i);
+  userEvent.click(submit);
+
+  const firstNameRender = await screen.findByTestId("firstnameDisplay");
+  const lastNameRender = await screen.findByTestId("lastnameDisplay");
+  const emailRender = await screen.findByTestId("emailDisplay");
+  const messageRender = await screen.findByTestId("messageDisplay");
+
+  expect(firstNameRender).toBeInTheDocument();
+  expect(lastNameRender).toBeInTheDocument();
+  expect(emailRender).toBeInTheDocument();
+  expect(messageRender).toBeInTheDocument();
+});
